@@ -32,7 +32,12 @@ export default function MarketplaceTab({ nfts, walletClient, publicClient }) {
             />
             <h3 className="font-bold">{nft.name}</h3>
             <p className="text-gray-600">Seller: {nft.seller.slice(0, 6)}...</p>
-            <BuyButton tokenId={nft.id} price={nft.price} walletClient={walletClient} />
+            {
+                nft.owner?.toLowerCase() === walletClient.account.address.toLowerCase() && (
+                    <BuyButton tokenId={nft.id} price={nft.price} walletClient={walletClient} />
+                )
+            }
+           
           </div>
         ))}
       </div>

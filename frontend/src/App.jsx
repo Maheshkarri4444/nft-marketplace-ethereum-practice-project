@@ -40,6 +40,7 @@ function App() {
           transport: custom(window.ethereum),
         })
       );
+      console.log("account",account);
     } catch (error) {
       console.error('Connection failed:', error);
       alert('Connection failed. Make sure MetaMask is on Celo Sepolia.');
