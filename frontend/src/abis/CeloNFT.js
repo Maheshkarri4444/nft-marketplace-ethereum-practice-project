@@ -1,4 +1,4 @@
-[
+export const CELONFT_ABI=[
     {
       "inputs": [],
       "stateMutability": "nonpayable",
@@ -626,4 +626,4 @@
       "stateMutability": "nonpayable",
       "type": "function"
     }
-]
+  ]

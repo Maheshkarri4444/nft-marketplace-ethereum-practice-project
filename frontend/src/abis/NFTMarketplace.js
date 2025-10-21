@@ -1,4 +1,4 @@
-[
+export const MARKETPLACE_ABI = [
     {
       "inputs": [],
       "name": "ReentrancyGuardReentrantCall",
@@ -290,4 +290,4 @@
       "stateMutability": "payable",
       "type": "receive"
     }
-]
+  ]
