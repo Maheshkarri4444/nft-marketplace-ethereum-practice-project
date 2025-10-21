@@ -1,0 +1,15 @@
+{
+  "name": "NYC NFT TOKEN",
+  "description": "A artwork on New York City.",
+  "image": "ipfs://bafkreihko244mqorvjxqqw35qmclle2quolglnpl6ma53e67bjsifja3ca",
+  "attributes": [
+    {
+      "trait_type": "Artist",
+      "value": "Mahesh"
+    },
+    {
+      "trait_type": "Location",
+      "value": "New York"
+    }
+  ]
+}

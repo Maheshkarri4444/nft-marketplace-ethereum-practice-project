@@ -1,0 +1,15 @@
+{
+  "name": "WOW NFT TOKEN",
+  "description": "A unique artwork minted via Pinata and IPFS.",
+  "image": "ipfs://bafybeihc7jtnhjiqiffaexgzk4swxeh7pntl3c4oo4av7j4nsqnuufozru",
+  "attributes": [
+    {
+      "trait_type": "Artist",
+      "value": "Mahesh"
+    },
+    {
+      "trait_type": "Collection",
+      "value": "Art Work"
+    }
+  ]
+}
