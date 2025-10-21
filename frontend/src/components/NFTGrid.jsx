@@ -1,17 +1,35 @@
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import { parseEther } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
 import { approveForMarketplace, ADDRESSES } from '../utils/contracts';
 import { MARKETPLACE_ABI } from '../abis/NFTMarketplace';
+import { fetchListing } from '../utils/contracts';
 
-export default function NFTGrid({ nfts, type, walletClient }) {
+
+export default function NFTGrid({ nfts, type, walletClient , publicClient }) {
+    const [listings, setListings] = useState([]);
+    
+    useEffect(() => {
+        async function loadListings() {
+        const withListings = await Promise.all(
+            nfts.map(async (nft) => {
+            const listing = await fetchListing({ tokenId: nft.id, publicClient });
+            return listing ? { ...nft, ...listing } : null;
+            })
+        );
+        setListings(withListings.filter(Boolean));
+        }
+        if (nfts.length) loadListings();
+    }, [nfts, publicClient]);
+
+    console.log("listings",listings)
     
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {nfts.map((nft) => {
         const isOwner =
           nft.owner?.toLowerCase() === walletClient.account.address.toLowerCase();
-        const isListed = nft.price && BigInt(nft.price) > 0n; // detect from contract data
+        const isListed = listings.some((listedNFT) => listedNFT.id === nft.id); // detect from contract data
 
         return (
           <div key={nft.id} className="bg-white p-4 rounded shadow">

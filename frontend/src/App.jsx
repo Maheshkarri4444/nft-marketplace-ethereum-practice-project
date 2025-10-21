@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Routes, Route, NavLink, useNavigate, Navigate } from 'react-router-dom';
 import { createPublicClient, http, createWalletClient, custom } from 'viem';
 import { CELO_SEPOLIA } from './utils/chains';
 import ConnectWallet from './components/ConnectWallet';
-import NFTGrid from './components/NFTGrid';
-import MintForm from './components/MintForm';
-import MarketplaceTab from './components/MarketPlaceTab';
+import OwnedNFTs from './components/OwnedNFTs';
+import AllNFTs from './components/AllNFTs';
+import Marketplace from './components/Marketplace';
+import MintNFT from './components/MintNFT';
 import { fetchOwnedNFTs, fetchAllNFTs } from './utils/contracts';
 
 function App() {
   const [address, setAddress] = useState(null);
   const [walletClient, setWalletClient] = useState(null);
-  const [tab, setTab] = useState('owned');
+  const navigate = useNavigate();
 
   const publicClient = createPublicClient({
     chain: CELO_SEPOLIA,
@@ -40,7 +42,7 @@ function App() {
           transport: custom(window.ethereum),
         })
       );
-      console.log("account",account);
+      console.log("account", account);
     } catch (error) {
       console.error('Connection failed:', error);
       alert('Connection failed. Make sure MetaMask is on Celo Sepolia.');
@@ -50,7 +52,6 @@ function App() {
   const disconnect = async () => {
     if (window.ethereum) {
       try {
-        // Revoke permissions to truly disconnect (persists across refreshes)
         await window.ethereum.request({
           method: 'wallet_revokePermissions',
           params: [{ eth_accounts: {} }],
@@ -58,12 +59,12 @@ function App() {
         console.log('Permissions revoked');
       } catch (error) {
         console.error('Failed to revoke permissions:', error);
-        // Fallback: User may need to manually disconnect in MetaMask settings
         alert('Disconnect attempted. If still connected on refresh, manually revoke in MetaMask > Settings > Connected sites.');
       }
     }
     setAddress(null);
     setWalletClient(null);
+    navigate('/');
   };
 
   useEffect(() => {
@@ -73,6 +74,7 @@ function App() {
       if (accounts.length === 0) {
         setAddress(null);
         setWalletClient(null);
+        navigate('/');
       } else {
         const account = accounts[0];
         setAddress(account);
@@ -107,60 +109,122 @@ function App() {
       window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
       window.ethereum.removeListener('chainChanged', handleChainChanged);
     };
-  }, []);
+  }, [navigate]);
 
-  const { data: ownedNFTs = [] } = useQuery({
+  const { data: ownedNFTs = [], isLoading: ownedLoading } = useQuery({
     queryKey: ['ownedNFTs', address],
     queryFn: () => fetchOwnedNFTs({ address, publicClient }),
     enabled: !!address,
   });
 
-  const { data: allNFTs = [] } = useQuery({
+  const { data: allNFTs = [], isLoading: allLoading } = useQuery({
     queryKey: ['allNFTs'],
     queryFn: () => fetchAllNFTs({ publicClient }),
     staleTime: 60000,
   });
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-4xl font-bold mb-8 text-center">Celo NFT Marketplace</h1>
-      <ConnectWallet address={address} connect={connect} disconnect={disconnect} />
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white">
+      <header className="bg-white/5 backdrop-blur-md border-b border-white/10 p-4 sticky top-0 z-50">
+        <div className="container mx-auto flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-blue-400">Celo NFT Marketplace</h1>
+          <ConnectWallet address={address} connect={connect} disconnect={disconnect} />
+        </div>
+      </header>
+
       {address ? (
         <>
-          <div className="flex justify-center mb-8">
-            {['owned', 'all', 'marketplace', 'mint'].map((tabName) => (
-              <button
-                key={tabName}
-                onClick={() => setTab(tabName)}
-                className={`p-2 mx-2 rounded ${
-                  tab === tabName ? 'bg-blue-500 text-white' : 'bg-gray-200'
-                }`}
+          <nav className="bg-white/5 backdrop-blur-md border-b border-white/10 p-4">
+            <div className="container mx-auto flex justify-center space-x-6">
+              <NavLink
+                to="/owned"
+                className={({ isActive }) =>
+                  `px-6 py-3 rounded-lg border border-white/20 transition-all duration-300 ${
+                    isActive ? 'bg-blue-500/80 text-white shadow-lg' : 'text-gray-300 hover:text-white'
+                  }`
+                }
               >
-                {tabName === 'owned' && 'My NFTs'}
-                {tabName === 'all' && 'All NFTs'}
-                {tabName === 'marketplace' && 'Marketplace'}
-                {tabName === 'mint' && 'Mint New'}
-              </button>
-            ))}
-          </div>
-
-          {tab === 'owned' && (
-            <NFTGrid nfts={ownedNFTs} type="owned" walletClient={walletClient} />
-          )}
-          {tab === 'all' && (
-            <NFTGrid nfts={allNFTs} type="all" walletClient={walletClient} />
-          )}
-          {tab === 'marketplace' && (
-            <MarketplaceTab
-              nfts={allNFTs}
-              walletClient={walletClient}
-              publicClient={publicClient}
-            />
-          )}
-          {tab === 'mint' && <MintForm walletClient={walletClient} />}
+                My NFTs
+              </NavLink>
+              <NavLink
+                to="/all"
+                className={({ isActive }) =>
+                  `px-6 py-3 rounded-lg border border-white/20 transition-all duration-300 ${
+                    isActive ? 'bg-blue-500/80 text-white shadow-lg' : 'text-gray-300 hover:text-white'
+                  }`
+                }
+              >
+                All NFTs
+              </NavLink>
+              <NavLink
+                to="/marketplace"
+                className={({ isActive }) =>
+                  `px-6 py-3 rounded-lg border border-white/20 transition-all duration-300 ${
+                    isActive ? 'bg-blue-500/80 text-white shadow-lg' : 'text-gray-300 hover:text-white'
+                  }`
+                }
+              >
+                Marketplace
+              </NavLink>
+              <NavLink
+                to="/mint"
+                className={({ isActive }) =>
+                  `px-6 py-3 rounded-lg border border-white/20 transition-all duration-300 ${
+                    isActive ? 'bg-blue-500/80 text-white shadow-lg' : 'text-gray-300 hover:text-white'
+                  }`
+                }
+              >
+                Mint New
+              </NavLink>
+            </div>
+          </nav>
+          <main className="container mx-auto p-8">
+            <Routes>
+              <Route path="/" element={<Navigate to="/owned" />} />
+              <Route
+                path="/owned"
+                element={
+                  <OwnedNFTs
+                    nfts={ownedNFTs}
+                    loading={ownedLoading}
+                    walletClient={walletClient}
+                    publicClient={publicClient}
+                  />
+                }
+              />
+              <Route
+                path="/all"
+                element={
+                  <AllNFTs
+                    nfts={allNFTs}
+                    loading={allLoading}
+                    walletClient={walletClient}
+                    publicClient={publicClient}
+                  />
+                }
+              />
+              <Route
+                path="/marketplace"
+                element={
+                  <Marketplace
+                    nfts={allNFTs}
+                    loading={allLoading}
+                    walletClient={walletClient}
+                    publicClient={publicClient}
+                  />
+                }
+              />
+              <Route path="/mint" element={<MintNFT walletClient={walletClient} />} />
+            </Routes>
+          </main>
         </>
       ) : (
-        <p className="text-center">Connect wallet to get started</p>
+        <main className="flex items-center justify-center min-h-[calc(100vh-120px)] p-8">
+          <div className="text-center">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-300">Connect your wallet</h2>
+            <p className="text-gray-400">To explore the marketplace and mint NFTs</p>
+          </div>
+        </main>
       )}
     </div>
   );

@@ -18,7 +18,7 @@ export default function MarketplaceTab({ nfts, walletClient, publicClient }) {
     }
     if (nfts.length) loadListings();
   }, [nfts, publicClient]);
-
+  console.log("listings in market place",listings);
   return (
     <div>
       <h2 className="text-2xl mb-4">Active Listings</h2>
@@ -31,9 +31,16 @@ export default function MarketplaceTab({ nfts, walletClient, publicClient }) {
               className="w-full h-48 object-cover rounded mb-2"
             />
             <h3 className="font-bold">{nft.name}</h3>
-            <p className="text-gray-600">Seller: {nft.seller.slice(0, 6)}...</p>
+            <p className="text-gray-600">Seller: {nft.owner?.slice(0, 6)}...{nft.owner?.slice(-4)}</p>
+            <p className="text-gray-600">{nft.description || 'No description available.'}</p>
+
+            {nft.attributes?.map((attr, i) => (
+              <p key={i} className="text-xs">
+                {attr.trait_type}: {attr.value}
+              </p>
+            ))}
             {
-                nft.owner?.toLowerCase() === walletClient.account.address.toLowerCase() && (
+                nft.owner?.toLowerCase() !== walletClient.account.address.toLowerCase() && (
                     <BuyButton tokenId={nft.id} price={nft.price} walletClient={walletClient} />
                 )
             }
