@@ -44,7 +44,7 @@ main().catch((error) => {
 
 
 //terminal 
-// Celo NFT deployed to: 0x9485eFb6CfcDa04EABC42A1F2C5d4Dba229F2970
-// NFT Marketplace deployed to: 0x23fcfd0ce16e13bA312bF5e6B16ba4b624D8b751
+// Celo NFT deployed to: 0xa175f93f78C463C7F475f20EE3efc8069c4A2299
+// NFT Marketplace deployed to: 0x9Da935d01C074789B3df05bCFbAcC02F9152fEb8
 // Marketplace balance: 1.0 CELO
 
